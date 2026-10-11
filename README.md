@@ -178,11 +178,35 @@ python evaluate_3d.py
 
 ---
 
-## 📊 Deneysel Sonuçlar ve Yörünge Analizi
+## 📊 Deneysel Sonuçlar ve Performans Karşılaştırması
 
-Eğitilen **PPO (Proximal Policy Optimization)** modeli, 3B uzayda yaklaşan dinamik tehdidi algıladığında şu taktiksel davranışları sergilemiştir:
-- **Bileşik Dalış-Açılma Manevrası:** Karşıdan ve aynı irtifadan gelen füzeyi atlatmak için İHA yatayda hafif kavis çizerken dikeyde irtifa kaybederek ($Z \approx 80\text{ m}$) tehdidin görüş açısını bozmuştur.
-- **Enerji Korunumu ve Hedefe Yeniden Kilitlenme:** Tehdit ıskalayıp arkada kaldığı anda ($X \approx 400\text{ m}$) İHA gereksiz manevraları sonlandırarak rotasını doğrudan görev noktasına ($X=1000\text{ m}, Y=0\text{ m}, Z=100\text{ m}$) çevirmiş ve görevi başarıyla tamamlamıştır.
+### 1. 3B Kaçınma Yörüngesi Analizi
+Eğitilen **PPO (Proximal Policy Optimization)** modeli, 3B uzayda yaklaşan dinamik tehdidi algıladığında yatay ve dikey kaçınmayı senkronize ederek bileşik bir manevra üretmektedir.
+
+<p align="center">
+  <img src="figures/success_trajectory_3d.png" alt="3B UAV Tehdit Kaçınma Yörüngesi" width="750"/>
+</p>
+
+- **Bileşik Dalış-Açılma Manevrası:** Karşıdan gelen tehdidi atlatmak için İHA yatay eksende kavis çizerken irtifa değiştirerek tehdidin güdüm hattını bozmuştur.
+- **Iskalama Sonrası Yeniden Kilitlenme:** Tehdit geride kaldığı anda gereksiz kaçınma manevrası sonlandırılmış ve rota doğrudan görev hedefine ($X=1000\text{ m}, Y=0\text{ m}, Z=100\text{ m}$) yöneltilmiştir.
+
+---
+
+### 2. Monte Carlo Stres Testi (PPO vs. Dinamik APF)
+Modelin dayanıklılığını test etmek amacıyla, rastgele rüzgar türbülansı ve $V_{\text{threat}} \in [38, 46]\text{ m/s}$ tepe hızlarına sahip **100 bölümlük Monte Carlo stres testi** gerçekleştirilmiştir. Sonuçlar klasik **Dinamik Yapay Potansiyel Alanlar (D-APF)** yöntemi ile kıyaslanmıştır:
+
+<p align="center">
+  <img src="figures/comparison_benchmark.png" alt="PPO vs APF Karşılaştırması" width="650"/>
+</p>
+
+| Metrik | PPO (Derin RL) | D-APF (Klasik Kural Tabanlı) |
+| :--- | :---: | :---: |
+| **Görev Başarı Oranı (%)** | **%68** | **%0** |
+| **Çarpışma / İsabet Oranı (%)** | **%32** | **%100** |
+| **Zaman / Koridor Aşımı (%)** | **%0** | **%0** |
+| **Ortalama Minimum Tehdit Mesafesi** | **39.86 m** *(Güvenli Sınırda)* | **26.30 m** *(İsabet/Kritik Bölge)* |
+
+> **Akademik Çıkarım:** Klasik potansiyel alanlar (APF) yöntemleri, yüksek hızlı dinamik tehditler karşısında reaktif kaldığı ve yerel minimumlara yatkın olduğu için uçuş zarfı limitleri altında zamanında kaçınma üretememiştir. Derin Pekiştirmeli Öğrenme (PPO) ise proaktif karar alarak zorlu rüzgar ve hız koşullarında belirgin bir üstünlük sağlamıştır.
 
 ---
 
